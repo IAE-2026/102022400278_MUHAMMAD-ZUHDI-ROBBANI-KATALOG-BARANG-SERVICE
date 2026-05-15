@@ -1,0 +1,30 @@
+type Query {
+  items(
+    name: String @where(operator: "like")
+    status: ItemStatus @eq
+    first: Int = 10
+    page: Int
+  ): [Item!]! @paginate(defaultCount: 10, maxCount: 50, model: "App\\Models\\Item")
+
+  item(id: ID! @eq): Item @find(model: "App\\Models\\Item")
+}
+
+type Item {
+  id: ID!
+  name: String!
+  description: String
+  base_price: Float!
+  current_price: Float!
+  auction_start_at: DateTime!
+  auction_end_at: DateTime!
+  status: ItemStatus!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+enum ItemStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  CANCELLED
+}
