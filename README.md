@@ -2,134 +2,62 @@
 
 Service ini menangani katalog barang pada sistem lelang online. User hanya membaca daftar/detail barang, sedangkan admin dapat menambah, mengubah, dan menghapus barang memakai API key.
 
-## Endpoint
+## Gemini - Deep research
 
-User:
+bertujuan untuk pemahaman sebelum memulai membuat code
 
-- `GET /api/items`
-- `GET /api/items/{id}`
+promt 
 
-Admin:
+Konteks
+1. Proses Bisnis: Melakukan Penawaran Lelang (Bidder Journey)1. Fase Verifikasi Kelayakan Bidding (Domain: Service D - Verifikasi User)Aktivitas: Calon bidder mendaftarkan diri dan mengirimkan data (misal: jaminan/deposit atau KTP) agar akunnya berstatus Approved untuk mengikuti lelang.Endpoint: Klien menembak POST /api/v1/verifications.  2. Fase Eksplorasi Barang (Domain: Service A - Katalog Barang)Aktivitas: Bidder melihat etalase, mencari barang yang menarik, dan memastikan status lelangnya masih Open.Endpoint: Klien menembak GET /api/v1/items untuk melihat semua barang, dan GET /api/v1/items/{id} untuk melihat detail satu barang.  3. Fase Validasi & Eksekusi Penawaran (Domain: Service B - Penawaran)
+Ini adalah fase inti di mana service harus saling "berbicara" menggunakan protokol komunikasi modern.  Aktivitas: Bidder memasukkan nominal harga dan menekan tombol "Tawar". Klien menembak POST /api/v1/bids.  Titik Integrasi (Di Belakang Layar): Sebelum Service B menyimpan data tawaran tersebut ke database, ia wajib melakukan dua pengecekan silang:Mengecek Bidder: Service B menembak GET /api/v1/verifications/{bidder_id} ke Service D. "Apakah orang yang mau nge-bid ini statusnya APPROVED?" Jika ditolak/belum diverifikasi, transaksi langsung digagalkan.  Mengecek Barang: Service B menembak GET /api/v1/items/{item_id} ke Service A. "Apakah lelang barang ini masih buka dan apakah tawaran harganya valid?"  Hasil: Jika kedua validasi dari service eksternal tersebut lolos, tawaran dicatat secara sah.4. Fase Penentuan Pemenang & Penagihan (Domain: Service C - Invoice)Aktivitas: Waktu lelang habis. Sistem mengunci tawaran tertinggi dan menerbitkan tagihan.Titik Integrasi: Service C menarik data highest bid dari Service B, lalu mencetak tagihan via POST /api/v1/invoices. Bidder yang menang kemudian menerima invoice melalui GET /api/v1/invoices/{id}.   
 
-- `POST /api/admin/items`
-- `PUT /api/admin/items/{id}`
-- `DELETE /api/admin/items/{id}`
+2. edit plan research
 
-Swagger:
+Fokus
+3. Saya ingin membangun Service A (Katalog Barang) berbasis Laravel untuk sistem lelang online menggunakan REST API dan JSON. Fokus service ini adalah pengelolaan katalog barang dari sisi user dan admin.
+User hanya dapat melihat daftar dan detail barang lelang, sedangkan admin dapat menambah, mengubah, dan menghapus data barang lelang.
+Tolong coba buatkan code dan jelaskan mengapa memakai itu untuk:
 
-- `GET /api/documentation`
+Struktur endpoint API yang cocok
+Rancangan database untuk katalog barang
+Sistem keamanan agar fitur admin tidak bisa diakses sembarang user
+Cara mempercepat proses pengambilan data katalo
+Rekomendasi struktur Laravel agar sistem tetap rapi, aman, dan mudah dikembangkan
 
-GraphQL Playground:
 
-- `GET /graphql-playground`
-- endpoint query: `POST /graphql`
+Hasil deep research
 
-## Menjalankan dengan Docker
+## Claude - code
 
-```bash
-cp .env.example .env
-docker compose up -d --build
-docker compose exec app composer install
-docker compose exec app php artisan key:generate
-docker compose exec app php artisan migrate --seed
-docker compose exec app php artisan l5-swagger:generate
-```
+bantu membuat code 
 
-Base URL lokal:
+Konteks
+1. Hasil deep research
 
-```text
-http://localhost:8080
-```
+2. Saya ingin membangun Service A (Katalog Barang) berbasis Laravel untuk sistem lelang online menggunakan REST API dan JSON. Fokus service ini adalah pengelolaan katalog barang dari sisi user dan admin.
+User hanya dapat melihat daftar dan detail barang lelang, sedangkan admin dapat menambah, mengubah, dan menghapus data barang lelang.
+Tolong coba buatkan code dan jelaskan mengapa memakai itu untuk:
 
-API key admin bawaan seeder:
+Struktur endpoint API yang cocok
+Rancangan database untuk katalog barang
+Sistem keamanan agar fitur admin tidak bisa diakses sembarang user
+Cara mempercepat proses pengambilan data katalo
+Rekomendasi struktur dan best practice Laravel agar sistem tetap rapi, aman, dan mudah dikembangkan
 
-```text
-local-admin-key
-```
+3. Tolong buatkan structure Laravel yang mengacu pada best practices arsitektur bersih, performa tinggi, dan keamanan ketat. Berikut adalah spesifikasi teknis dan ruang lingkup yang 
+harus dipenuhi:
 
-Pakai header:
+Public API user:
+GET /api/v1/items
+GET /api/v1/items/{id}
+Private Admin API:
+/api/v1/admin/items
+Mendukung operasi POST, PUT, dan DELETE
+Hanya dapat diakses oleh admin
 
-```text
-Authorization: Bearer local-admin-key
-```
+4. Tolong tuliskan implementasi kodenya secara bertahap, gunakan bahasa yang jelas, dan sertakan contoh request/response JSON. Berikan juga sedikit penjelasan di balik setiap pemilihan keputusan arsitektural tersebut.
 
-## Contoh REST
+5. tidak perlu harus seperti contoh v1/api pake admin/api kalo user langsung /api aja
 
-### GET /api/items
-
-Response `200 OK`:
-
-```json
-{
-  "data": [
-    {
-      "id": 1,
-      "name": "Laptop ThinkPad X1",
-      "description": "Kondisi bekas, normal.",
-      "base_price": 5000000,
-      "current_price": 5000000,
-      "auction_start_at": "2026-05-16T03:00:00.000000Z",
-      "auction_end_at": "2026-05-20T03:00:00.000000Z",
-      "status": "OPEN"
-    }
-  ]
-}
-```
-
-### POST /api/admin/items
-
-Request:
-
-```json
-{
-  "name": "Kamera Mirrorless",
-  "description": "Kondisi baik dan siap lelang.",
-  "base_price": 7500000,
-  "auction_start_at": "2026-05-16T10:00:00+07:00",
-  "auction_end_at": "2026-05-20T10:00:00+07:00",
-  "status": "OPEN"
-}
-```
-
-Response `201 Created`:
-
-```json
-{
-  "data": {
-    "id": 21,
-    "name": "Kamera Mirrorless",
-    "description": "Kondisi baik dan siap lelang.",
-    "base_price": 7500000,
-    "current_price": 7500000,
-    "status": "OPEN"
-  }
-}
-```
-
-Tanpa API key, admin endpoint akan mengembalikan `401 Unauthorized`.
-
-## Contoh GraphQL
-
-```graphql
-query {
-  items(first: 10) {
-    data {
-      id
-      name
-      base_price
-      current_price
-      status
-    }
-  }
-}
-```
-
-## Kenapa Strukturnya Seperti Ini?
-
-- `routes/api.php` memisahkan endpoint user dan admin agar akses lebih jelas.
-- `FormRequest` dipakai untuk validasi supaya controller tetap bersih dan data buruk berhenti sebelum masuk database.
-- `JsonResource` dipakai agar format response konsisten.
-- `ApiKeyMiddleware` mengunci endpoint admin memakai `Authorization: Bearer <api-key>` atau `X-API-Key`.
-- Tabel `items` diberi index pada `status`, `auction_end_at`, `auction_start_at`, dan `name` agar pencarian katalog lebih cepat.
-- Cache Redis dipakai pada daftar/detail barang karena katalog sering dibaca dan lebih jarang diubah.
-- Swagger dan GraphQL disiapkan untuk memudahkan dokumentasi, eksplorasi data, dan integrasi dengan service lain.
+pembuatan code
