@@ -2,7 +2,7 @@ type Query {
   items(
     name: String @where(operator: "like")
     status: ItemStatus @eq
-    first: Int = 10
+    first: Int = 15
     page: Int
   ): [Item!]! @paginate(defaultCount: 10, maxCount: 50, model: "App\\Models\\Item")
 
