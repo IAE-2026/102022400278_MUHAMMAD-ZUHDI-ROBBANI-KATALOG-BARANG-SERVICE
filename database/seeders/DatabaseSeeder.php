@@ -22,5 +22,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'warga41@ktp.iae.id'],
             ['role' => 'admin']
         );
+
+        \App\Models\Item::factory(10)->create();
     }
 }

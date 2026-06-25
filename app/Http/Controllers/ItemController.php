@@ -12,9 +12,10 @@ class ItemController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/items",
+     *     path="/v1/items",
      *     tags={"User - Items"},
      *     summary="Melihat daftar barang lelang",
+     *     security={{"ApiKeyAuth":{}}},
      *     @OA\Parameter(name="status", in="query", @OA\Schema(type="string", enum={"DRAFT","OPEN","CLOSED","CANCELLED"})),
      *     @OA\Parameter(name="search", in="query", @OA\Schema(type="string")),
      *     @OA\Response(response=200, description="OK")
@@ -35,14 +36,18 @@ class ItemController extends Controller
                 ->paginate(10);
         });
 
-        return ItemResource::collection($items);
+        return ItemResource::collection($items)->additional([
+            'status' => 'success',
+            'message' => 'Data retrieved successfully'
+        ]);
     }
 
     /**
      * @OA\Get(
-     *     path="/items/{id}",
+     *     path="/v1/items/{id}",
      *     tags={"User - Items"},
      *     summary="Melihat detail barang lelang",
+     *     security={{"ApiKeyAuth":{}}},
      *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
      *     @OA\Response(response=200, description="OK"),
      *     @OA\Response(response=404, description="Barang tidak ditemukan")
@@ -56,6 +61,9 @@ class ItemController extends Controller
             fn () => $item
         );
 
-        return new ItemResource($cachedItem);
+        return (new ItemResource($cachedItem))->additional([
+            'status' => 'success',
+            'message' => 'Data retrieved successfully'
+        ]);
     }
 }

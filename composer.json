@@ -8,6 +8,7 @@
         "darkaonline/l5-swagger": "^8.6",
         "firebase/php-jwt": "^7.1",
         "laravel/framework": "^11.0",
+        "mll-lab/laravel-graphql-playground": "^1.1",
         "nuwave/lighthouse": "^6.0"
     },
     "require-dev": {

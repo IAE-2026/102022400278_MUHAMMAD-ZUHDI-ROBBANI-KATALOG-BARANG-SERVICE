@@ -23,4 +23,16 @@ class ItemResource extends JsonResource
             'updated_at' => $this->updated_at?->toISOString(),
         ];
     }
+
+    public function with(Request $request): array
+    {
+        return [
+            'status' => 'success',
+            'message' => 'Data retrieved successfully',
+            'meta' => [
+                'service_name' => 'Katalog-Service',
+                'api_version' => 'v1',
+            ]
+        ];
+    }
 }

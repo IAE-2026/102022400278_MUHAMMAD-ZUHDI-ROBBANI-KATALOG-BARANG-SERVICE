@@ -21,6 +21,24 @@ class ItemController extends Controller
         $this->iaeService = $iaeService;
     }
 
+    /**
+     * @OA\Post(
+     *     path="/v1/items",
+     *     tags={"User - Items"},
+     *     summary="Membuat barang lelang baru",
+     *     security={{"ApiKeyAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name","base_price"},
+     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="description", type="string"),
+     *             @OA\Property(property="base_price", type="number", format="float")
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Created")
+     * )
+     */
     public function store(StoreItemRequest $request): JsonResponse
     {
         $data = $request->validated();
@@ -54,6 +72,7 @@ class ItemController extends Controller
         ]);
 
         return (new ItemResource($item))
+            ->additional(['message' => 'Data created successfully'])
             ->response()
             ->setStatusCode(201);
     }
@@ -112,6 +131,7 @@ class ItemController extends Controller
         ]);
 
         return response()->json([
+            'status' => 'success',
             'message' => 'Barang lelang berhasil dihapus.',
         ]);
     }

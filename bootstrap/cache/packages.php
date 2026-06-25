@@ -10,6 +10,13 @@
       0 => 'L5Swagger\\L5SwaggerServiceProvider',
     ),
   ),
+  'mll-lab/laravel-graphql-playground' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'MLL\\GraphQLPlayground\\GraphQLPlaygroundServiceProvider',
+    ),
+  ),
   'nesbot/carbon' => 
   array (
     'providers' => 

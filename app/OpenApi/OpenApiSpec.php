@@ -17,11 +17,11 @@ use OpenApi\Annotations as OA;
  * )
  *
  * @OA\SecurityScheme(
- *     securityScheme="bearerAuth",
- *     type="http",
- *     scheme="bearer",
- *     bearerFormat="API Key",
- *     description="Masukkan API key admin sebagai Bearer token."
+ *     securityScheme="ApiKeyAuth",
+ *     type="apiKey",
+ *     in="header",
+ *     name="X-IAE-KEY",
+ *     description="Masukkan NIM Anda sebagai API Key (102022400278)"
  * )
  */
 class OpenApiSpec
