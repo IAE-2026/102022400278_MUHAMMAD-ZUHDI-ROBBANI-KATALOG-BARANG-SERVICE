@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: service-a-app
+
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
@@ -13,7 +13,7 @@ services:
 
   nginx:
     image: nginx:1.27-alpine
-    container_name: service-a-nginx
+
     ports:
       - "8080:80"
     volumes:
@@ -24,7 +24,7 @@ services:
 
   mysql:
     image: mysql:8.4
-    container_name: service-a-mysql
+
     ports:
       - "3307:3306"
     environment:
@@ -37,9 +37,10 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: service-a-redis
+
     ports:
       - "6379:6379"
 
 volumes:
   mysql-data:
+
