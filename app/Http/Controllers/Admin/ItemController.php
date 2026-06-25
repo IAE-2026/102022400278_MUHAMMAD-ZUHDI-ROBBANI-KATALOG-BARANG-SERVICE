@@ -30,10 +30,13 @@ class ItemController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"name","base_price"},
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="description", type="string"),
-     *             @OA\Property(property="base_price", type="number", format="float")
+     *             required={"name","base_price","auction_start_at","auction_end_at","status"},
+     *             @OA\Property(property="name", type="string", example="Baju Band"),
+     *             @OA\Property(property="description", type="string", example="Deskripsi"),
+     *             @OA\Property(property="base_price", type="number", format="float", example=50000),
+     *             @OA\Property(property="auction_start_at", type="string", format="date-time", example="2026-06-25T10:00:00Z"),
+     *             @OA\Property(property="auction_end_at", type="string", format="date-time", example="2026-06-30T10:00:00Z"),
+     *             @OA\Property(property="status", type="string", example="OPEN")
      *         )
      *     ),
      *     @OA\Response(response=201, description="Created")
