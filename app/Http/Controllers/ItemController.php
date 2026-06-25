@@ -18,7 +18,7 @@ class ItemController extends Controller
      *     security={{"ApiKeyAuth":{}}},
      *     @OA\Parameter(name="status", in="query", @OA\Schema(type="string", enum={"DRAFT","OPEN","CLOSED","CANCELLED"})),
      *     @OA\Parameter(name="search", in="query", @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="OK")
+     *     @OA\Response(response=200, description="OK", @OA\JsonContent())
      * )
      */
     public function index(Request $request)
@@ -49,8 +49,8 @@ class ItemController extends Controller
      *     summary="Melihat detail barang lelang",
      *     security={{"ApiKeyAuth":{}}},
      *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="OK"),
-     *     @OA\Response(response=404, description="Barang tidak ditemukan")
+     *     @OA\Response(response=200, description="OK", @OA\JsonContent()),
+     *     @OA\Response(response=404, description="Barang tidak ditemukan", @OA\JsonContent())
      * )
      */
     public function show(Item $item): ItemResource

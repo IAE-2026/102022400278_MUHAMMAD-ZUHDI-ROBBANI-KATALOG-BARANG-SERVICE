@@ -39,7 +39,7 @@ class ItemController extends Controller
      *             @OA\Property(property="status", type="string", example="OPEN")
      *         )
      *     ),
-     *     @OA\Response(response=201, description="Created")
+     *     @OA\Response(response=201, description="Created", @OA\JsonContent())
      * )
      */
     public function store(StoreItemRequest $request): JsonResponse
