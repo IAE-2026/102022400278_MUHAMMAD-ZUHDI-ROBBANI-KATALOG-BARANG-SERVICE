@@ -111,7 +111,8 @@ class ItemController extends Controller
             ]
         ]);
 
-        return new ItemResource($item->refresh());
+        return (new ItemResource($item->refresh()))
+            ->additional(['message' => 'Data updated successfully']);
     }
 
     public function destroy(Item $item): JsonResponse
@@ -136,6 +137,7 @@ class ItemController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Barang lelang berhasil dihapus.',
+            'data' => null,
         ]);
     }
 

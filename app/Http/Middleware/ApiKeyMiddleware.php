@@ -35,7 +35,9 @@ class ApiKeyMiddleware
     private function unauthorized(string $message): JsonResponse
     {
         return response()->json([
+            'status' => 'error',
             'message' => $message,
+            'errors' => null,
         ], 401);
     }
 }
