@@ -2,46 +2,71 @@
 
 namespace Tests\Feature;
 
-use App\Models\ApiKey;
 use App\Models\Item;
+use App\Services\IaeCentralService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Mockery\MockInterface;
 
 class ItemApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        // Mock IaeCentralService agar tidak menembak endpoint aslinya saat testing
+        $this->mock(IaeCentralService::class, function (MockInterface $mock) {
+            $mock->shouldReceive('sendSoapAudit')->andReturn('REC-TEST-123');
+            $mock->shouldReceive('publishAmqpEvent')->andReturn(true);
+        });
+    }
+
     public function test_user_can_list_items(): void
     {
         Item::factory()->count(3)->create(['status' => 'OPEN']);
 
-        $this->getJson('/api/items')
+        $this->withHeader('X-IAE-KEY', '102022400278')
+            ->getJson('/api/v1/items')
             ->assertOk()
-            ->assertJsonStructure(['data']);
+            ->assertJsonStructure([
+                'status',
+                'message',
+                'data' => [
+                    '*' => ['id', 'name', 'base_price', 'status']
+                ],
+                'meta'
+            ]);
     }
 
     public function test_user_gets_404_for_missing_item(): void
     {
-        $this->getJson('/api/items/999')
-            ->assertNotFound();
+        $this->withHeader('X-IAE-KEY', '102022400278')
+            ->getJson('/api/v1/items/999')
+            ->assertNotFound()
+            ->assertJsonStructure([
+                'status',
+                'message',
+                'errors'
+            ]);
     }
 
-    public function test_admin_endpoint_requires_api_key(): void
+    public function test_endpoint_requires_api_key(): void
     {
-        $this->postJson('/api/admin/items', [])
-            ->assertUnauthorized();
+        $this->getJson('/api/v1/items')
+            ->assertUnauthorized()
+            ->assertJsonStructure([
+                'status',
+                'message',
+                'errors'
+            ]);
     }
 
-    public function test_admin_can_create_item_with_api_key(): void
+    public function test_user_can_create_item_with_api_key(): void
     {
-        ApiKey::query()->create([
-            'name' => 'Test Admin',
-            'key_hash' => hash('sha256', 'test-admin-key'),
-            'abilities' => ['admin'],
-        ]);
-
-        $this->withHeader('Authorization', 'Bearer test-admin-key')
-            ->postJson('/api/admin/items', [
+        $this->withHeader('X-IAE-KEY', '102022400278')
+            ->postJson('/api/v1/items', [
                 'name' => 'Kamera Mirrorless',
                 'description' => 'Kondisi baik dan siap lelang.',
                 'base_price' => 7500000,
@@ -50,6 +75,13 @@ class ItemApiTest extends TestCase
                 'status' => 'OPEN',
             ])
             ->assertCreated()
-            ->assertJsonPath('data.name', 'Kamera Mirrorless');
+            ->assertJsonPath('data.name', 'Kamera Mirrorless')
+            ->assertJsonStructure([
+                'status',
+                'message',
+                'data' => [
+                    'id', 'name', 'receipt_number'
+                ]
+            ]);
     }
 }
