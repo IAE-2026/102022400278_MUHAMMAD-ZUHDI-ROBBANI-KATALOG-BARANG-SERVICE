@@ -31,7 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 } elseif ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
                     $status = $e->getStatusCode();
                 } elseif ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
-                    $status = 404;
+                    $status = 503;
                     $message = 'Resource not found';
                 } elseif ($e instanceof \Illuminate\Auth\AuthenticationException) {
                     $status = 401;
