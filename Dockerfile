@@ -19,3 +19,14 @@ RUN apk add --no-cache \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
+
+# Copy existing application directory contents
+COPY . .
+
+# Install dependencies
+RUN composer install --no-interaction --optimize-autoloader --no-dev
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
