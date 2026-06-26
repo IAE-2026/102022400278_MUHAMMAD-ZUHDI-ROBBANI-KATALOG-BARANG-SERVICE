@@ -38,7 +38,11 @@ class ItemController extends Controller
 
         return ItemResource::collection($items)->additional([
             'status' => 'success',
-            'message' => 'Data retrieved successfully'
+            'message' => 'Data retrieved successfully',
+            'meta' => [
+                'service_name' => 'Catalog-Service',
+                'api_version' => 'v1'
+            ]
         ]);
     }
 
@@ -63,7 +67,11 @@ class ItemController extends Controller
 
         return (new ItemResource($cachedItem))->additional([
             'status' => 'success',
-            'message' => 'Data retrieved successfully'
+            'message' => 'Data retrieved successfully',
+            'meta' => [
+                'service_name' => 'Catalog-Service',
+                'api_version' => 'v1'
+            ]
         ]);
     }
 }

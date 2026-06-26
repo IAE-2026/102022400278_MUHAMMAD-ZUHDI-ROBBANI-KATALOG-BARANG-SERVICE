@@ -12,37 +12,46 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias([
-            'api.key' => \App\Http\Middleware\SsoOrApiKeyMiddleware::class,
-        ]);
-    })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
-            if ($request->is('api/*')) {
-                $status = 500;
-                $message = $e->getMessage();
-                $errors = null;
+    ->withMiddleware(function (Middleware $middleware) {
 
-                if ($e instanceof \Illuminate\Validation\ValidationException) {
-                    $status = $e->status;
-                    $errors = $e->errors();
-                    $message = 'Validation Error';
-                } elseif ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
-                    $status = $e->getStatusCode();
-                } elseif ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
-                    $status = 503;
-                    $message = 'Resource not found';
-                } elseif ($e instanceof \Illuminate\Auth\AuthenticationException) {
-                    $status = 401;
-                    $message = 'Unauthenticated';
-                }
+    $middleware->alias([
+        'apikey' => \App\Http\Middleware\ApiKeyMiddleware::class,
+        'sso' => \App\Http\Middleware\SsoOrApiKeyMiddleware::class,
+    ]);
+
+})
+    ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->render(function (\Illuminate\Validation\ValidationException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                    'errors' => $e->errors()
+                ], 422);
+            }
+        });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Resource not found',
+                    'errors' => null
+                ], 404);
+            }
+        });
+
+        $exceptions->render(function (\Throwable $e, $request) {
+            if ($request->is('api/*')) {
+                $statusCode = $e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface 
+                    ? $e->getStatusCode() 
+                    : 500;
 
                 return response()->json([
                     'status' => 'error',
-                    'message' => $message ?: 'Terjadi kesalahan pada server',
-                    'errors' => $errors
-                ], $status);
+                    'message' => $e->getMessage() ?: 'Internal Server Error',
+                    'errors' => null
+                ], $statusCode);
             }
         });
     })->create();

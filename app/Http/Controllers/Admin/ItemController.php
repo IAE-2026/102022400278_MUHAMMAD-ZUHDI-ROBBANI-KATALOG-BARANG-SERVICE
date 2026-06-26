@@ -75,7 +75,14 @@ class ItemController extends Controller
         ]);
 
         return (new ItemResource($item))
-            ->additional(['message' => 'Data created successfully'])
+            ->additional([
+                'status' => 'success',
+                'message' => 'Data created successfully',
+                'meta' => [
+                    'service_name' => 'Catalog-Service',
+                    'api_version' => 'v1'
+                ]
+            ])
             ->response()
             ->setStatusCode(201);
     }
@@ -112,7 +119,14 @@ class ItemController extends Controller
         ]);
 
         return (new ItemResource($item->refresh()))
-            ->additional(['message' => 'Data updated successfully']);
+            ->additional([
+                'status' => 'success',
+                'message' => 'Data updated successfully',
+                'meta' => [
+                    'service_name' => 'Catalog-Service',
+                    'api_version' => 'v1'
+                ]
+            ]);
     }
 
     public function destroy(Item $item): JsonResponse
@@ -138,6 +152,10 @@ class ItemController extends Controller
             'status' => 'success',
             'message' => 'Barang lelang berhasil dihapus.',
             'data' => null,
+            'meta' => [
+                'service_name' => 'Catalog-Service',
+                'api_version' => 'v1'
+            ]
         ]);
     }
 
