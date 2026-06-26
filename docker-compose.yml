@@ -1,22 +1,29 @@
+version: '3.8'
+
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
-
+    container_name: auction-service-app
+    restart: unless-stopped
     working_dir: /var/www/html
     ports:
       - "8080:8080"
+    command: sh -c "php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=8080"
     volumes:
       - ./:/var/www/html
       - /var/www/html/vendor
     depends_on:
       - mysql
       - redis
+    networks:
+      - auction-network
 
   mysql:
     image: mysql:8.4
-
+    container_name: auction-service-mysql
+    restart: unless-stopped
     ports:
       - "3307:3306"
     environment:
@@ -26,12 +33,35 @@ services:
       MYSQL_ROOT_PASSWORD: root
     volumes:
       - mysql-data:/var/lib/mysql
+    networks:
+      - auction-network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: auction-service-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mysql
+    depends_on:
+      - mysql
+    networks:
+      - auction-network
 
   redis:
     image: redis:7-alpine
-
+    container_name: auction-service-redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
+    networks:
+      - auction-network
+
+networks:
+  auction-network:
+    driver: bridge
 
 volumes:
   mysql-data:
