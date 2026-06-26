@@ -8,14 +8,16 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('api_keys', function (Blueprint $table): void {
-            $table->id();
-            $table->string('name');
-            $table->string('key_hash', 64)->unique();
-            $table->json('abilities');
-            $table->timestamp('last_used_at')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('api_keys')) {
+            Schema::create('api_keys', function (Blueprint $table): void {
+                $table->id();
+                $table->string('name');
+                $table->string('key_hash', 64)->unique();
+                $table->json('abilities');
+                $table->timestamp('last_used_at')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void
